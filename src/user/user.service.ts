@@ -5,10 +5,11 @@ import {
 } from '@nestjs/common';
 import { createUserDto } from './dtos/createUser.dto';
 import { UserEntity } from './entities/user.entity';
-import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserType } from './enum/user-type.enum';
+import { UpdatePasswordDto } from './dtos/update-password.dto';
+import { createPasswordHash, validatePassword } from '../utils/password';
 
 @Injectable()
 export class UserService {
@@ -16,6 +17,7 @@ export class UserService {
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
   ) {}
+
   async createUser(createUserDto: createUserDto): Promise<UserEntity> {
     const user = await this.findUserByEmail(createUserDto.email).catch(
       () => undefined,
@@ -24,10 +26,8 @@ export class UserService {
       throw new BadRequestException('Email already exists');
     }
 
-    const saltRounds = 10;
     try {
-      const salt = await bcrypt.genSalt(saltRounds);
-      const passwordHash = await bcrypt.hash(createUserDto.password, salt);
+      const passwordHash = await createPasswordHash(createUserDto.password);
 
       return this.userRepository.save({
         ...createUserDto,
@@ -68,5 +68,29 @@ export class UserService {
       throw new NotFoundException(`Email ${email} not found`);
     }
     return user;
+  }
+
+  async updatePasswordUser(
+    updatePasswordDTO: UpdatePasswordDto,
+    userId: number,
+  ): Promise<UserEntity> {
+    const user = await this.findUserById(userId);
+
+    const passwordHash = await createPasswordHash(
+      updatePasswordDTO.newPassword,
+    );
+
+    const passwordMatch = await validatePassword(
+      updatePasswordDTO.lastPassword,
+      user.password || '',
+    );
+    if (!passwordMatch) {
+      throw new BadRequestException('Password does not match');
+    }
+
+    return this.userRepository.save({
+      ...user,
+      password: passwordHash,
+    });
   }
 }

@@ -6,11 +6,14 @@ import {
   UsePipes,
   ValidationPipe,
   Param,
+  Patch,
 } from '@nestjs/common';
 import { createUserDto } from './dtos/createUser.dto';
 import { UserService } from './user.service';
 import { UserEntity } from './entities/user.entity';
 import { ReturnUserDto } from './dtos/returnUser.dto';
+import { UpdatePasswordDto } from './dtos/update-password.dto';
+import { UserId } from '../decorators/user-id.decarator';
 
 @Controller('user')
 export class UserController {
@@ -32,5 +35,14 @@ export class UserController {
     return new ReturnUserDto(
       await this.userService.getUserByUsingRelations(userId),
     );
+  }
+
+  @Patch()
+  @UsePipes(ValidationPipe)
+  async updatePasswordUser(
+    @Body() updatePasswordDTO: UpdatePasswordDto,
+    @UserId() userId: number,
+  ): Promise<UserEntity> {
+    return this.userService.updatePasswordUser(updatePasswordDTO, userId);
   }
 }
