@@ -16,11 +16,14 @@ export class CartEntity {
   @Column({ name: 'user_id', nullable: false })
   userId: number;
 
-  @CreateDateColumn({ name: 'created_at' })
-  created_at: Date;
+  @Column({ name: 'active', nullable: false })
+  active: boolean;
 
-  @UpdateDateColumn({ name: 'created_at' })
-  updated_at: Date;
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 
   @OneToMany(
     () => CartProductEntity,
