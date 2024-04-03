@@ -1,12 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CartProductService } from '../../cart-product/cart-product.service';
-import { DeleteResult, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CartService } from '../cart.service';
 import { CartEntity } from '../entities/cart.entity';
 import { returnDeleteMock } from '../../__mocks__/return-delete.mock';
 import { cartMock } from '../__mocks__/cart.mock';
 import { userEntityMock } from '../../user/__mocks__/user.mock';
+import { NotFoundException } from '@nestjs/common';
 
 describe('CartService', () => {
   let service: CartService;
@@ -55,19 +56,35 @@ describe('CartService', () => {
   });
 
   it('should return delete result if delete cart', async () => {
-    const spy = jest
-      .spyOn(cartRepository, 'save')
-      .mockResolvedValueOnce(cartMock);
+    const spy = jest.spyOn(cartRepository, 'save');
 
-    const resultDelete: DeleteResult = await service.clearCart(
-      userEntityMock.id,
-    );
+    const resultDelete = await service.clearCart(userEntityMock.id);
 
-    expect(resultDelete).toBeDefined();
-    expect(resultDelete).toHaveProperty('affected', 1);
-    expect(spy).toHaveBeenCalledWith({
+    expect(resultDelete).toEqual(returnDeleteMock);
+    expect(spy.mock.calls[0][0]).toEqual({
       ...cartMock,
       active: false,
+    });
+  });
+
+  it('should return error if findOne undefined', async () => {
+    jest.spyOn(cartRepository, 'findOne').mockResolvedValue(undefined);
+    try {
+      await service.clearCart(userEntityMock.id);
+    } catch (error) {
+      expect(error).toBeInstanceOf(NotFoundException);
+      expect(error.message).toBe('Cart not found');
+    }
+  });
+
+  it('should return send info in save (createCart)', async () => {
+    const spy = jest.spyOn(cartRepository, 'save');
+
+    const cart = await service.createCart(userEntityMock.id);
+    expect(cart).toEqual(cartMock);
+    expect(spy.mock.calls[0][0]).toEqual({
+      userId: userEntityMock.id,
+      active: true,
     });
   });
 });
