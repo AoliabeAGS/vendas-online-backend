@@ -11,7 +11,9 @@ import { ReturnCategory } from './dtos/return-category.dto';
 import { Roles } from '../decorators/roles.decorator';
 import { UserType } from '../user/enum/user-type.enum';
 import { CategoryEntity } from './entities/category.entity';
-import { CreateCategory } from './dtos/create-category.dto';
+import { CreateCategoryDTO } from './dtos/create-category.dto';
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('category')
 @Roles(UserType.Admin, UserType.User)
 @Controller('category')
 export class CategoryController {
@@ -27,7 +29,7 @@ export class CategoryController {
   @UsePipes(ValidationPipe)
   @Post()
   async createCategory(
-    @Body() createCategory: CreateCategory,
+    @Body() createCategory: CreateCategoryDTO,
   ): Promise<CategoryEntity> {
     return this.categoryService.createCategory(createCategory);
   }

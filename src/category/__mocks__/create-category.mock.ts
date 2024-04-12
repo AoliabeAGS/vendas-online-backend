@@ -1,5 +1,5 @@
-import { CreateCategory } from '../dtos/create-category.dto';
+import { CreateCategoryDTO } from '../dtos/create-category.dto';
 
-export const createCategoryMock: CreateCategory = {
+export const createCategoryMock: CreateCategoryDTO = {
   name: 'CreateCategoryMock',
 };

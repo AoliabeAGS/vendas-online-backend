@@ -6,7 +6,7 @@ import {
 import { CategoryEntity } from './entities/category.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateCategory } from './dtos/create-category.dto';
+import { CreateCategoryDTO } from './dtos/create-category.dto';
 
 @Injectable()
 export class CategoryService {
@@ -43,7 +43,7 @@ export class CategoryService {
   }
 
   async createCategory(
-    createCategory: CreateCategory,
+    createCategory: CreateCategoryDTO,
   ): Promise<CategoryEntity> {
     const category = await this.findCategoryByName(createCategory.name).catch(
       () => undefined,
