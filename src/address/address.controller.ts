@@ -13,7 +13,9 @@ import { Roles } from '../decorators/roles.decorator';
 import { UserType } from '../user/enum/user-type.enum';
 import { UserId } from '../decorators/user-id.decarator';
 import { ReturnAddressDto } from './dtos/returnAddress.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('address')
 @Roles(UserType.User, UserType.Admin)
 @Controller('address')
 export class AddressController {
